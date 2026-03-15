@@ -167,7 +167,7 @@ function OpenRouterFormFields(
             {!showModelsApiErrorMessage && (
               <FormField.Message
                 messages={{
-                  idle: "This model will be used by Onyx by default.",
+                  idle: "This model will be used by Cleardocs by default.",
                   error: meta.error,
                 }}
               />

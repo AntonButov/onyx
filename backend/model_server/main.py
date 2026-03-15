@@ -93,7 +93,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
 
 def get_model_app() -> FastAPI:
     application = FastAPI(
-        title="Onyx Model Server", version=__version__, lifespan=lifespan
+        title="Cleardocs Model Server", version=__version__, lifespan=lifespan
     )
     if SENTRY_DSN:
         sentry_sdk.init(

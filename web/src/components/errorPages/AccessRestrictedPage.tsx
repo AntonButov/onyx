@@ -64,8 +64,8 @@ export default function AccessRestricted() {
     ? getSeatLimitMessage()
     : showRenewalMessage
       ? NEXT_PUBLIC_CLOUD_ENABLED
-        ? "Your access to Onyx has been temporarily suspended due to a lapse in your subscription."
-        : "Your access to Onyx has been temporarily suspended due to a lapse in your license."
+        ? "Your access to Cleardocs has been temporarily suspended due to a lapse in your subscription."
+        : "Your access to Cleardocs has been temporarily suspended due to a lapse in your license."
       : "An Enterprise license is required to use Onyx. Your data is protected and will be available once a license is activated.";
 
   const handleResubscribe = async () => {

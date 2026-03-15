@@ -401,7 +401,7 @@ export default function MCPAuthenticationModal({
                             {isOAuthEnabled && (
                               <InputSelect.Item
                                 value={MCPAuthenticationType.PT_OAUTH}
-                                description="Forward the user's OAuth access token used to authenticate Onyx."
+                                description="Forward the user's OAuth access token used to authenticate Cleardocs."
                               >
                                 OAuth Pass-through
                               </InputSelect.Item>
@@ -499,8 +499,8 @@ export default function MCPAuthenticationModal({
                         </Text>
                         <Text as="p" text03 secondaryBody>
                           If your server does not support DCR, you need register
-                          your Onyx instance with the server provider to obtain
-                          these credentials first. Make sure to grant Onyx
+                          your Cleardocs instance with the server provider to obtain
+                          these credentials first. Make sure to grant Cleardocs
                           necessary scopes/permissions for your actions.
                         </Text>
 
@@ -622,7 +622,7 @@ export default function MCPAuthenticationModal({
                   {values.auth_type === MCPAuthenticationType.PT_OAUTH && (
                     <Message
                       text="Use pass-through for services with shared identity provider."
-                      description="Onyx will forward the user's OAuth access token directly to the server as an Authorization header. Make sure the server supports authentication with the same provider."
+                      description="Cleardocs will forward the user's OAuth access token directly to the server as an Authorization header. Make sure the server supports authentication with the same provider."
                       default
                       medium
                       static

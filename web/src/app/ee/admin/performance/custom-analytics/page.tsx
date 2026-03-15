@@ -25,7 +25,7 @@ function Main() {
   return (
     <div>
       <Text className="mb-8">
-        This allows you to bring your own analytics tool to Onyx! Copy the Web
+        This allows you to bring your own analytics tool to Cleardocs! Copy the Web
         snippet from your analytics provider into the box below, and we&apos;ll
         start sending usage events.
       </Text>

@@ -478,7 +478,7 @@ export function SlackChannelConfigFormFields({
                   }
                 }}
                 label={'Give a "Still need help?" button'}
-                tooltip={`OnyxBot's response will include a button at the bottom
+                tooltip={`CleardocsBot's response will include a button at the bottom
                       of the response that asks the user if they still need help.`}
               />
               {values.still_need_help_enabled && (

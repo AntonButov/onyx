@@ -765,7 +765,7 @@ export const connectorConfigs: Record<
                 name: "requested_objects",
                 optional: true,
                 description:
-                  "Specify the Salesforce object types you want us to index. If unsure, don't specify any objects and Onyx will default to indexing by 'Account'." +
+                  "Specify the Salesforce object types you want us to index. If unsure, don't specify any objects and Cleardocs will default to indexing by 'Account'." +
                   "\n\nHint: Use the singular form of the object name (e.g., 'Opportunity' instead of 'Opportunities').",
               },
             ],

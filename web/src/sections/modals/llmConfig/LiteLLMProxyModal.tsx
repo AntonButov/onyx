@@ -153,7 +153,7 @@ export function LiteLLMProxyModal({
                     formikProps={formikProps}
                     noModelConfigurationsMessage={
                       "Fetch available models first, then you'll be able to select " +
-                      "the models you want to make available in Onyx."
+                      "the models you want to make available in Cleardocs."
                     }
                     recommendedDefaultModel={null}
                     shouldShowAutoUpdateToggle={false}

@@ -217,7 +217,7 @@ export default function UserRowActions({
             <Text as="span" text05>
               {user.email}
             </Text>{" "}
-            will no longer be able to join Onyx with this invite.
+            will no longer be able to join Cleardocs with this invite.
           </Text>
         </ConfirmationModalLayout>
       )}
@@ -247,7 +247,7 @@ export default function UserRowActions({
             <Text as="span" text05>
               {user.email}
             </Text>{" "}
-            will immediately lose access to Onyx. Their sessions and agents will
+            will immediately lose access to Cleardocs. Their sessions and agents will
             be preserved. Their license seat will be freed. You can reactivate
             this account later.
           </Text>
@@ -278,7 +278,7 @@ export default function UserRowActions({
             <Text as="span" text05>
               {user.email}
             </Text>{" "}
-            will regain access to Onyx.
+            will regain access to Cleardocs.
           </Text>
         </ConfirmationModalLayout>
       )}
@@ -308,7 +308,7 @@ export default function UserRowActions({
             <Text as="span" text05>
               {user.email}
             </Text>{" "}
-            will be permanently removed from Onyx. All of their session history
+            will be permanently removed from Cleardocs. All of their session history
             will be deleted. Deletion cannot be undone.
           </Text>
         </ConfirmationModalLayout>

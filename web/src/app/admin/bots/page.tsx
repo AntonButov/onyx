@@ -37,8 +37,8 @@ function Main() {
   return (
     <div className="mb-8">
       <p className="mb-2 text-sm text-muted-foreground">
-        Setup Slack bots that connect to Onyx. Once setup, you will be able to
-        ask questions to Onyx directly from Slack. Additionally, you can:
+        Setup Slack bots that connect to Cleardocs. Once setup, you will be able to
+        ask questions to Cleardocs directly from Slack. Additionally, you can:
       </p>
 
       <div className="mb-2">

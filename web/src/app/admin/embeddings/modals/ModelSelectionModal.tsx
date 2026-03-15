@@ -40,7 +40,7 @@ export default function ModelSelectionConfirmationModal({
           <Text as="p">
             <i>NOTE:</i> this re-indexing process will consume more resources
             than normal. If you are self-hosting, we recommend that you allocate
-            at least 16GB of RAM to Onyx during this process.
+            at least 16GB of RAM to Cleardocs during this process.
           </Text>
 
           {isCustom && (

@@ -545,7 +545,7 @@ export class OnyxChatWidget extends LitElement {
             target="_blank"
             rel="noopener noreferrer"
             style="text-decoration: underline;"
-            >Onyx</a
+            >Cleardocs</a
           >
         </div>
       </div>
