@@ -1,8 +1,8 @@
 /**
  * App Page Layout Components
  *
- * Provides the root layout, header, and footer for app pages.
- * AppRoot renders AppHeader and Footer by default (both can be disabled via props).
+ * Provides the root layout and header for app pages.
+ * AppRoot renders AppHeader by default.
  *
  * @example
  * ```tsx
@@ -20,8 +20,7 @@
 
 "use client";
 
-import { cn, ensureHrefProtocol, noProp } from "@/lib/utils";
-import type { Components } from "react-markdown";
+import { cn, noProp } from "@/lib/utils";
 import Text from "@/refresh-components/texts/Text";
 import { useCallback, useMemo, useState, useEffect } from "react";
 import { useAppBackground } from "@/providers/AppBackgroundProvider";
@@ -58,14 +57,12 @@ import {
   SvgSidebar,
   SvgTrash,
 } from "@opal/icons";
-import MinimalMarkdown from "@/components/chat/MinimalMarkdown";
 import { useSettingsContext } from "@/providers/SettingsProvider";
 import type { AppMode } from "@/providers/QueryControllerProvider";
 import useAppFocus from "@/hooks/useAppFocus";
 import { useQueryController } from "@/providers/QueryControllerProvider";
 import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
 import useBrowserInfo from "@/hooks/useBrowserInfo";
-import { APP_SLOGAN } from "@/lib/constants";
 
 /**
  * App Header Component
@@ -429,75 +426,10 @@ function Header() {
   );
 }
 
-const footerMarkdownComponents = {
-  p: ({ children }) => (
-    //dont remove the !my-0 class, it's important for the markdown to render without any alignment issues
-    <Text as="p" text03 secondaryAction className="!my-0 text-center">
-      {children}
-    </Text>
-  ),
-  a: ({ node, href, className, children, ...rest }) => {
-    const fullHref = ensureHrefProtocol(href);
-    return (
-      <a
-        href={fullHref}
-        target="_blank"
-        rel="noopener noreferrer"
-        {...rest}
-        className={cn(className, "underline underline-offset-2")}
-      >
-        <Text text03 secondaryAction>
-          {children}
-        </Text>
-      </a>
-    );
-  },
-} satisfies Partial<Components>;
-
-function Footer() {
-  const settings = useSettingsContext();
-  const appFocus = useAppFocus();
-
-  const customFooterContent =
-    settings?.enterpriseSettings?.custom_lower_disclaimer_content ||
-    `[Onyx ${
-      settings?.webVersion || "dev"
-    }](https://www.onyx.app/) - ${APP_SLOGAN}`;
-
-  return (
-    <footer
-      className={cn(
-        "relative w-full flex flex-row justify-center items-center gap-2 px-2 mt-auto",
-        // # Note (from @raunakab):
-        //
-        // The conditional rendering of vertical padding based on the current page is intentional.
-        // The `AppInputBar` has `shadow-01` applied, which extends ~14px below it.
-        // Because the content area in `Root` uses `overflow-auto`, the shadow would be
-        // clipped at the container boundary — causing a visible rendering artefact.
-        //
-        // To fix this, `AppPage.tsx` uses animated spacer divs around `AppInputBar` to
-        // give the shadow breathing room. However, that extra space adds visible gap
-        // between the input and the Footer. To compensate, we remove the Footer's top
-        // padding when `appFocus.isChat()`.
-        //
-        // There is a corresponding note inside `AppInputBar.tsx` and `AppPage.tsx`
-        // explaining this. Please refer to those notes as well.
-        appFocus.isChat() ? "pb-2" : "py-2"
-      )}
-    >
-      <MinimalMarkdown
-        content={customFooterContent}
-        className={cn("max-w-full text-center")}
-        components={footerMarkdownComponents}
-      />
-    </footer>
-  );
-}
-
 /**
  * App Root Component
  *
- * Wraps app pages with header (AppHeader) and footer chrome.
+ * Wraps app pages with header (AppHeader) chrome.
  *
  * Layout Structure:
  * ```
@@ -507,8 +439,6 @@ function Footer() {
  * │                                  │
  * │ Content Area (children)          │
  * │                                  │
- * ├──────────────────────────────────┤
- * │ Footer (custom disclaimer)       │
  * └──────────────────────────────────┘
  * ```
  *
@@ -605,9 +535,6 @@ function Root({ children, enableBackground }: AppRootProps) {
       </div>
       <div className="z-app-layout flex-1 overflow-auto h-full w-full">
         {children}
-      </div>
-      <div className="z-app-layout">
-        <Footer />
       </div>
     </div>
   );
