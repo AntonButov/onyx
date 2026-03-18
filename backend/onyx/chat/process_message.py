@@ -65,8 +65,11 @@ from onyx.db.models import Persona
 from onyx.db.models import User
 from onyx.db.models import UserFile
 from onyx.db.projects import get_user_files_from_project
+from onyx.db.search_settings import get_current_search_settings
+from onyx.db.tools import get_builtin_tool
 from onyx.db.tools import get_tools
 from onyx.deep_research.dr_loop import run_deep_research_llm_loop
+from onyx.document_index.factory import get_default_document_index
 from onyx.file_processing.extract_file_text import extract_file_text
 from onyx.file_store.models import ChatFileType
 from onyx.file_store.models import InMemoryChatFile
@@ -99,6 +102,7 @@ from onyx.tools.tool_constructor import SearchToolConfig
 from onyx.tools.tool_implementations.file_reader.file_reader_tool import (
     FileReaderTool,
 )
+from onyx.tools.tool_implementations.search.search_tool import SearchTool
 from onyx.utils.logger import setup_logger
 from onyx.utils.telemetry import mt_cloud_telemetry
 from onyx.utils.timing import log_function_time
@@ -685,20 +689,9 @@ def handle_stream_message_objects(
         all_tools = get_tools(db_session)
         tool_id_to_name_map = {tool.id: tool.name for tool in all_tools}
 
-        search_tool_id = next(
-            (tool.id for tool in all_tools if tool.in_code_tool_id == SEARCH_TOOL_ID),
-            None,
-        )
-
         forced_tool_id = new_msg_req.forced_tool_id
-        if (
-            search_params.search_usage == SearchToolUsage.DISABLED
-            and forced_tool_id is not None
-            and search_tool_id is not None
-            and forced_tool_id == search_tool_id
-        ):
-            forced_tool_id = None
-
+        # When client requests a forced tool (e.g. Internal Search), we still add it even if
+        # search_usage is DISABLED for the project, so the "not found in tools" error is avoided.
         emitter = get_default_emitter()
 
         # Construct tools based on the persona configurations
@@ -730,13 +723,74 @@ def handle_stream_message_objects(
             ),
             allowed_tool_ids=new_msg_req.allowed_tool_ids,
             search_usage_forcing_setting=search_params.search_usage,
+            force_include_tool_id=forced_tool_id,
         )
         tools: list[Tool] = []
         for tool_list in tool_dict.values():
             tools.extend(tool_list)
 
         if forced_tool_id and forced_tool_id not in [tool.id for tool in tools]:
-            raise ValueError(f"Forced tool {forced_tool_id} not found in tools")
+            # Client requested a forced tool (Internal Search). Resolve by type: always look up Internal Search
+            # by in_code_tool_id so we're not tied to a specific numeric id.
+            search_tool_model = next(
+                (t for t in all_tools if t.in_code_tool_id == SEARCH_TOOL_ID),
+                None,
+            )
+            if search_tool_model is None:
+                # Fallback: client may have sent the correct tool id but it was filtered out
+                by_id = next(
+                    (t for t in all_tools if t.id == forced_tool_id), None
+                )
+                if by_id and by_id.in_code_tool_id == SEARCH_TOOL_ID:
+                    search_tool_model = by_id
+            if search_tool_model is None:
+                try:
+                    search_tool_model = get_builtin_tool(db_session, SearchTool)
+                except RuntimeError:
+                    logger.warning(
+                        "Internal Search (SearchTool) not found in database; "
+                        "proceeding without forced search."
+                    )
+                    forced_tool_id = None
+            if search_tool_model is None and forced_tool_id is not None:
+                raise ValueError(
+                    f"Forced tool {forced_tool_id} not found in tools. "
+                    "Ensure Internal Search (SearchTool) exists in the database."
+                )
+            if search_tool_model is not None:
+                # Use the id from the DB (may differ from client's id)
+                effective_forced_id = search_tool_model.id
+                if effective_forced_id not in [tool.id for tool in tools]:
+                    search_settings = get_current_search_settings(db_session)
+                    document_index = get_default_document_index(
+                        search_settings, None, db_session
+                    )
+                    search_tool_config = SearchToolConfig(
+                        user_selected_filters=new_msg_req.internal_search_filters,
+                        project_id=search_params.search_project_id,
+                        persona_id=search_params.search_persona_id,
+                        bypass_acl=bypass_acl,
+                        slack_context=slack_context,
+                        enable_slack_search=_should_enable_slack_search(
+                            persona, new_msg_req.internal_search_filters
+                        ),
+                    )
+                    search_tool = SearchTool(
+                        tool_id=effective_forced_id,
+                        emitter=emitter,
+                        user=user,
+                        persona=persona,
+                        llm=llm,
+                        document_index=document_index,
+                        user_selected_filters=search_tool_config.user_selected_filters,
+                        project_id=search_tool_config.project_id,
+                        persona_id=search_tool_config.persona_id,
+                        bypass_acl=search_tool_config.bypass_acl,
+                        slack_context=search_tool_config.slack_context,
+                        enable_slack_search=search_tool_config.enable_slack_search,
+                    )
+                    tools.append(search_tool)
+                forced_tool_id = effective_forced_id
 
         # TODO Once summarization is done, we don't need to load all the files from the beginning anymore.
         # load all files needed for this chat chain in memory

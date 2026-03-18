@@ -209,7 +209,14 @@ const ChatUI = React.memo(
             <div className="p-4">
               <ErrorBanner
                 resubmit={onResubmit}
-                error={error || loadError || ""}
+                error={
+                  messages[messages.length - 1]?.type === "error"
+                    ? (messages[messages.length - 1].message ||
+                        error ||
+                        loadError ||
+                        "")
+                    : error || loadError || ""
+                }
                 errorCode={
                   messages[messages.length - 1]?.errorCode || undefined
                 }
