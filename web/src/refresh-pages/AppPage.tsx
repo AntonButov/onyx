@@ -28,6 +28,8 @@ import PreviewModal from "@/sections/modals/PreviewModal";
 import Modal from "@/refresh-components/Modal";
 import { useSendMessageToParent } from "@/lib/extension/utils";
 import { SUBMIT_MESSAGE_TYPES } from "@/lib/extension/constants";
+import { SEARCH_TOOL_ID } from "@/app/app/components/tools/constants";
+import { DEFAULT_INTERNAL_SEARCH_ON_NEW_CHAT } from "@/lib/constants";
 import { getSourceMetadata } from "@/lib/sources";
 import { SourceMetadata } from "@/lib/search/interfaces";
 import { FederatedConnectorDetail, UserRole, ValidSources } from "@/lib/types";
@@ -162,6 +164,8 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
     setForcedToolIds([]);
   }, [currentProjectId, setForcedToolIds]);
 
+  const prevChatSessionIdRef = useRef<string | null | undefined>(undefined);
+
   const isInitialLoad = useRef(true);
 
   const { agents, isLoading: isLoadingAgents } = useAgents();
@@ -241,6 +245,24 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
   });
 
   const noAgents = liveAgent === null || liveAgent === undefined;
+
+  // When on a new chat session, optionally default forced tool to Internal Search (see DEFAULT_INTERNAL_SEARCH_ON_NEW_CHAT)
+  useEffect(() => {
+    if (!DEFAULT_INTERNAL_SEARCH_ON_NEW_CHAT) return;
+    if (currentChatSessionId !== null) return;
+    const internalSearchTool = liveAgent?.tools?.find(
+      (t) =>
+        t.in_code_tool_id === SEARCH_TOOL_ID && t.mcp_server_id == null
+    );
+    if (internalSearchTool) {
+      setForcedToolIds([internalSearchTool.id]);
+    }
+    prevChatSessionIdRef.current = currentChatSessionId;
+  }, [
+    currentChatSessionId,
+    liveAgent?.tools,
+    setForcedToolIds,
+  ]);
 
   const availableSources: ValidSources[] = useMemo(() => {
     return ccPairs.map((ccPair) => ccPair.source);

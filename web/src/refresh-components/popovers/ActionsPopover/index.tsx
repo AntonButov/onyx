@@ -40,6 +40,10 @@ import MCPLineItem, {
   MCPServer,
 } from "@/refresh-components/popovers/ActionsPopover/MCPLineItem";
 import { useProjectsContext } from "@/providers/ProjectsContext";
+import {
+  DEFAULT_AGENT_ID,
+  DEFAULT_INTERNAL_SEARCH_ON_NEW_CHAT,
+} from "@/lib/constants";
 import { SvgActions, SvgChevronRight, SvgKey, SvgSliders } from "@opal/icons";
 import { Button } from "@opal/components";
 import { Disabled } from "@opal/core";
@@ -298,9 +302,14 @@ export default function ActionsPopover({
     useAgentPreferences();
   const { forcedToolIds, setForcedToolIds } = useForcedTools();
 
-  // Reset state when assistant changes
+  // Reset forced tools when switching to a different assistant (but not when
+  // switching to the default assistant and default Internal Search is enabled,
+  // so "default to Internal Search on new session" can take effect)
   useEffect(() => {
-    setForcedToolIds([]);
+    const isDefaultAgent = selectedAgent.id === DEFAULT_AGENT_ID;
+    if (!isDefaultAgent || !DEFAULT_INTERNAL_SEARCH_ON_NEW_CHAT) {
+      setForcedToolIds([]);
+    }
   }, [selectedAgent.id, setForcedToolIds]);
 
   const { isAdmin, isCurator } = useUser();

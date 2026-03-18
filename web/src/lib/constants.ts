@@ -67,7 +67,7 @@ export const NEXT_PUBLIC_CLOUD_ENABLED =
   process.env.NEXT_PUBLIC_CLOUD_ENABLED?.toLowerCase() === "true";
 
 export const REGISTRATION_URL =
-  process.env.INTERNAL_URL || "http://127.0.0.1:3001";
+  process.env.INTERNAL_URL || "http://localhost:8080";
 
 export const SERVER_SIDE_ONLY__CLOUD_ENABLED =
   process.env.NEXT_PUBLIC_CLOUD_ENABLED?.toLowerCase() === "true";
@@ -82,6 +82,11 @@ export const NEXT_PUBLIC_TEST_ENV =
 export const NEXT_PUBLIC_INCLUDE_ERROR_POPUP_SUPPORT_LINK =
   process.env.NEXT_PUBLIC_INCLUDE_ERROR_POPUP_SUPPORT_LINK?.toLowerCase() ===
   "true";
+
+/** When true, new chat sessions start with Internal Search pinned (blue chip in input bar). Set to "false" to disable. */
+export const DEFAULT_INTERNAL_SEARCH_ON_NEW_CHAT =
+  process.env.NEXT_PUBLIC_DEFAULT_INTERNAL_SEARCH_ON_NEW_CHAT?.toLowerCase() !==
+  "false";
 
 // Restrict markdown links to safe protocols
 export const ALLOWED_URL_PROTOCOLS = ["http:", "https:", "mailto:"] as const;
@@ -108,7 +113,8 @@ export const CREDENTIAL_JSON = "credential_json";
 
 export const MODAL_ROOT_ID = "modal-root";
 
-export const UNNAMED_CHAT = "New Chat";
+// Display name for chats without a title; keep in sync with S.chat.newChat
+export const UNNAMED_CHAT = "Новый чат";
 
 export const DEFAULT_AGENT_ID = 0;
 export const GENERAL_ASSISTANT_ID = -1;
