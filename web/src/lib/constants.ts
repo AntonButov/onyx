@@ -83,10 +83,11 @@ export const NEXT_PUBLIC_INCLUDE_ERROR_POPUP_SUPPORT_LINK =
   process.env.NEXT_PUBLIC_INCLUDE_ERROR_POPUP_SUPPORT_LINK?.toLowerCase() ===
   "true";
 
-/** When true, new chat sessions start with Internal Search pinned (blue chip in input bar). Set to "false" to disable. */
-export const DEFAULT_INTERNAL_SEARCH_ON_NEW_CHAT =
-  process.env.NEXT_PUBLIC_DEFAULT_INTERNAL_SEARCH_ON_NEW_CHAT?.toLowerCase() !==
-  "false";
+/** When true, new chat sessions start with Internal Search pinned (blue chip in input bar). */
+export const DEFAULT_INTERNAL_SEARCH_ON_NEW_CHAT = true;
+
+/** When false, the input bar toolbar (settings, Internal Search, model selector, etc.) is hidden. */
+export const SHOW_INPUT_BAR_TOOLBAR = false;
 
 // Restrict markdown links to safe protocols
 export const ALLOWED_URL_PROTOCOLS = ["http:", "https:", "mailto:"] as const;

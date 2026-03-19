@@ -35,6 +35,7 @@ import {
 } from "@/app/app/projects/projectsService";
 import FilePickerPopover from "@/refresh-components/popovers/FilePickerPopover";
 import ActionsPopover from "@/refresh-components/popovers/ActionsPopover";
+import { SHOW_INPUT_BAR_TOOLBAR } from "@/lib/constants";
 import {
   getIconForAction,
   hasSearchToolsAvailable,
@@ -496,7 +497,7 @@ const AppInputBar = React.memo(
           "transition-all duration-150"
         )}
       >
-        {/* Bottom left controls */}
+        {/* Bottom left: (+) always visible; rest (settings, Internal Search, etc.) when toolbar enabled */}
         <div className="flex flex-row items-center">
           {/* (+) button - always visible */}
           <FilePickerPopover
@@ -532,7 +533,7 @@ const AppInputBar = React.memo(
             selectedFileIds={currentMessageFiles.map((f) => f.id)}
           />
 
-          {/* Controls that load in when data is ready */}
+          {SHOW_INPUT_BAR_TOOLBAR && (
           <div
             data-testid="actions-container"
             className={cn(
@@ -611,10 +612,12 @@ const AppInputBar = React.memo(
                 );
               })}
           </div>
+          )}
         </div>
 
         {/* Bottom right controls */}
         <div className="flex flex-row items-center gap-1">
+          {SHOW_INPUT_BAR_TOOLBAR && (
           <div
             data-testid="AppInputBar/llm-popover-trigger"
             className={cn(controlsLoading && "invisible")}
@@ -625,6 +628,7 @@ const AppInputBar = React.memo(
               disabled={disabled}
             />
           </div>
+          )}
           {showMicButton &&
             (sttEnabled ? (
               <MicrophoneButton

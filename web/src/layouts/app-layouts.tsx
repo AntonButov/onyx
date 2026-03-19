@@ -449,6 +449,38 @@ function Header() {
  * </AppLayouts.Root>
  * ```
  */
+/** Hide any legacy footer (Onyx version/slogan). Injects CSS so it works even with cached builds. */
+function FooterRemoval() {
+  useEffect(() => {
+    const style = document.createElement("style");
+    style.textContent = `footer:has(a[href*="onyx.app"]){display:none!important}`;
+    document.head.appendChild(style);
+    const remove = () => {
+      document.querySelectorAll("footer").forEach((el) => {
+        const text = el.textContent ?? "";
+        if (
+          text.includes("Onyx") &&
+          (text.includes("0.0.0-dev") || text.includes("dev")) &&
+          (text.includes("Платформа") || text.includes("Open Source"))
+        ) {
+          el.remove();
+        }
+      });
+    };
+    remove();
+    requestAnimationFrame(remove);
+    const id = setTimeout(remove, 100);
+    const observer = new MutationObserver(() => requestAnimationFrame(remove));
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => {
+      clearTimeout(id);
+      observer.disconnect();
+      style.remove();
+    };
+  }, []);
+  return null;
+}
+
 export interface AppRootProps {
   /** Opt-in to render the user's custom background image */
   enableBackground?: boolean;
@@ -536,6 +568,8 @@ function Root({ children, enableBackground }: AppRootProps) {
       <div className="z-app-layout flex-1 overflow-auto h-full w-full">
         {children}
       </div>
+      <FooterRemoval />
+      {/* Footer (version/slogan) intentionally not rendered — do not add back. */}
     </div>
   );
 }

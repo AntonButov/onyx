@@ -584,3 +584,8 @@ textarea {
 .container {
   margin-bottom: 1rem;
 }
+
+/* Hide Onyx version/slogan footer (intentionally removed from layout) */
+footer:has(a[href*="onyx.app"]) {
+  display: none !important;
+}
