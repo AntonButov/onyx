@@ -97,11 +97,16 @@ function Main({ ccPairId }: { ccPairId: number }) {
     data: ccPair,
     isLoading: isLoadingCCPair,
     error: ccPairError,
+    mutate: mutateCCPair,
   } = useSWR<CCPairFullInfo>(
     buildCCPairInfoUrl(ccPairId),
     errorHandlingFetcher,
     { refreshInterval: 5000 } // 5 seconds
   );
+
+  const refreshStatus = useCallback(() => {
+    void mutateCCPair();
+  }, [mutateCCPair]);
 
   const {
     currentPageData: indexAttempts,
@@ -453,6 +458,15 @@ function Main({ ccPairId }: { ccPairId: number }) {
         </div>
 
         <div className="ml-auto flex gap-x-2">
+          {isDeleting && (
+            <Button
+              prominence="secondary"
+              icon={RefreshCwIcon}
+              onClick={refreshStatus}
+            >
+              Refresh status
+            </Button>
+          )}
           {ccPair.is_editable_for_current_user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -461,6 +475,14 @@ function Main({ ccPairId }: { ccPairId: number }) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItemWithTooltip
+                  onClick={refreshStatus}
+                  className="flex items-center gap-x-2 cursor-pointer px-3 py-2"
+                  tooltip="Reload status from server (e.g. after recovery from Deleting)"
+                >
+                  <RefreshCwIcon className="h-4 w-4" />
+                  <span>Refresh status</span>
+                </DropdownMenuItemWithTooltip>
                 <DropdownMenuItemWithTooltip
                   onClick={() => {
                     if (
