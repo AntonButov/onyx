@@ -79,6 +79,7 @@ import { errorHandlingFetcher } from "@/lib/fetcher";
 import UserAvatarPopover from "@/sections/sidebar/UserAvatarPopover";
 import ChatSearchCommandMenu from "@/sections/sidebar/ChatSearchCommandMenu";
 import { useQueryController } from "@/providers/QueryControllerProvider";
+import { S } from "@/lib/strings";
 
 // Visible-agents = pinned-agents + current-agent (if current-agent not in pinned-agents)
 // OR Visible-agents = pinned-agents (if current-agent in pinned-agents)
@@ -161,7 +162,7 @@ function RecentsSection({
         isOver && "bg-background-tint-03"
       )}
     >
-      <SidebarSection title="Recents">
+      <SidebarSection title={S.sidebar.recentChats}>
         {chatSessions.length === 0 ? (
           <Text as="p" text01 className="px-3">
             Try sending a message! Your chat history will appear here.
@@ -509,7 +510,7 @@ const MemoizedAppSidebarInner = memo(
               reset();
             }}
           >
-            New Session
+            {S.sidebar.newSession}
           </SidebarTab>
         </div>
       );
@@ -553,7 +554,7 @@ const MemoizedAppSidebarInner = memo(
               // Specifying a dummy `onClick` handler solves that.
               onClick={() => undefined}
             >
-              Search Chats
+              {S.sidebar.searchChats}
             </SidebarTab>
           }
         />
@@ -574,7 +575,7 @@ const MemoizedAppSidebarInner = memo(
             selected={activeSidebarTab.isMoreAgents()}
             lowlight={!folded}
           >
-            {visibleAgents.length === 0 ? "Explore Agents" : "More Agents"}
+            {visibleAgents.length === 0 ? S.sidebar.exploreAgents : S.sidebar.moreAgents}
           </SidebarTab>
         </div>
       ),
@@ -724,7 +725,7 @@ const MemoizedAppSidebarInner = memo(
                   collisionDetection={closestCenter}
                   onDragEnd={handleAgentDragEnd}
                 >
-                  <SidebarSection title="Agents">
+                  <SidebarSection title={S.sidebar.agents}>
                     <SortableContext
                       items={visibleAgentIds}
                       strategy={verticalListSortingStrategy}
@@ -752,7 +753,7 @@ const MemoizedAppSidebarInner = memo(
                 >
                   {/* Projects */}
                   <SidebarSection
-                    title="Projects"
+                    title={S.sidebar.projects}
                     action={
                       <OpalButton
                         icon={SvgFolderPlus}

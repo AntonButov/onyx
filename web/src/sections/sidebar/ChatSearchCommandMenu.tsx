@@ -29,6 +29,7 @@ import {
   SvgKeystroke,
 } from "@opal/icons";
 import TextSeparator from "@/refresh-components/TextSeparator";
+import { S } from "@/lib/strings";
 
 /**
  * Dynamic footer that shows contextual action labels based on highlighted item type
@@ -216,7 +217,7 @@ export default function ChatSearchCommandMenu({
       <CommandMenu open={open} onOpenChange={handleOpenChange}>
         <CommandMenu.Content>
           <CommandMenu.Header
-            placeholder="Search chat sessions, projects..."
+            placeholder={S.sidebar.searchPlaceholder}
             value={searchValue}
             onValueChange={setSearchValue}
             filters={headerFilters}
