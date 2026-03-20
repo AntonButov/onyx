@@ -211,7 +211,7 @@ const ChatUI = React.memo(
                 resubmit={onResubmit}
                 error={
                   messages[messages.length - 1]?.type === "error"
-                    ? (messages[messages.length - 1].message ||
+                    ? (messages[messages.length - 1]?.message ||
                         error ||
                         loadError ||
                         "")

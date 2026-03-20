@@ -575,18 +575,73 @@ services:
 volumes:
   # Necessary for persisting data for use
   db_volume:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/thousand/docker-data/onyx/db_volume
   vespa_volume: # Created by the container itself
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/thousand/docker-data/onyx/vespa_volume
   minio_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/thousand/docker-data/onyx/minio_data
   # Caches to prevent re-downloading models, not strictly necessary
   model_cache_huggingface:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/thousand/docker-data/onyx/model_cache_huggingface
   indexing_huggingface_model_cache:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/thousand/docker-data/onyx/indexing_huggingface_model_cache
   # Logs preserved across container restarts
   api_server_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/thousand/docker-data/onyx/api_server_logs
   background_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/thousand/docker-data/onyx/background_logs
   # mcp_server_logs:
   inference_model_server_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/thousand/docker-data/onyx/inference_model_server_logs
   indexing_model_server_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/thousand/docker-data/onyx/indexing_model_server_logs
   # Shared volume for persistent document storage (Craft file-system mode)
   file-system:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/thousand/docker-data/onyx/file-system
   # Persistent data for OpenSearch.
   opensearch-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/thousand/docker-data/onyx/opensearch-data
