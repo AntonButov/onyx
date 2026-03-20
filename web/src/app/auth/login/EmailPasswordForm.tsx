@@ -20,6 +20,7 @@ import { APIFormFieldState } from "@/refresh-components/form/types";
 import { SvgArrowRightCircle } from "@opal/icons";
 import { useCaptcha } from "@/lib/hooks/useCaptcha";
 import Spacer from "@/refresh-components/Spacer";
+import { S } from "@/lib/strings";
 
 interface EmailPasswordFormProps {
   isSignup?: boolean;
@@ -46,16 +47,25 @@ export default function EmailPasswordForm({
   const [errorMessage, setErrorMessage] = useState<string>("");
   const { getCaptchaToken } = useCaptcha();
 
+  const passwordRuleText = useMemo(
+    () =>
+      S.auth.passwordMinLengthTemplate.replace(
+        "{min}",
+        String(passwordMinLength)
+      ),
+    [passwordMinLength]
+  );
+
   const apiMessages = useMemo(
     () => ({
       loading: isSignup
         ? isJoin
-          ? "Joining..."
-          : "Creating account..."
-        : "Signing in...",
+          ? S.auth.joiningProgress
+          : S.auth.creatingAccountProgress
+        : S.auth.signingInProgress,
       success: isSignup
-        ? "Account created. Signing in..."
-        : "Signed in successfully.",
+        ? S.auth.accountCreatedSigningIn
+        : S.auth.signedInSuccessfully,
       error: errorMessage,
     }),
     [isSignup, isJoin, errorMessage]
@@ -78,10 +88,7 @@ export default function EmailPasswordForm({
             .required()
             .transform((value) => value.toLowerCase()),
           password: Yup.string()
-            .min(
-              passwordMinLength,
-              `Password must be at least ${passwordMinLength} characters`
-            )
+            .min(passwordMinLength, passwordRuleText)
             .required(),
         })}
         onSubmit={async (values: { email: string; password: string }) => {
@@ -109,24 +116,23 @@ export default function EmailPasswordForm({
               setIsWorking(false);
 
               const errorDetail: any = (await response.json()).detail;
-              let errorMsg: string = "Unknown error";
+              let errorMsg: string = S.auth.unknownError;
               if (typeof errorDetail === "object" && errorDetail.reason) {
                 errorMsg = errorDetail.reason;
               } else if (errorDetail === "REGISTER_USER_ALREADY_EXISTS") {
-                errorMsg =
-                  "An account already exists with the specified email.";
+                errorMsg = S.auth.accountAlreadyExists;
               }
               if (response.status === 429) {
-                errorMsg = "Too many requests. Please try again later.";
+                errorMsg = S.auth.tooManyRequests;
               }
               setErrorMessage(errorMsg);
               setApiStatus("error");
-              toast.error(`Failed to sign up - ${errorMsg}`);
+              toast.error(`${S.auth.signupFailedPrefix} — ${errorMsg}`);
               setIsWorking(false);
               return;
             } else {
               setApiStatus("success");
-              toast.success("Account created successfully. Please log in.");
+              toast.success(S.auth.accountCreatedToast);
             }
           }
 
@@ -152,20 +158,20 @@ export default function EmailPasswordForm({
           } else {
             setIsWorking(false);
             const errorDetail: any = (await loginResponse.json()).detail;
-            let errorMsg: string = "Unknown error";
+            let errorMsg: string = S.auth.unknownError;
             if (errorDetail === "LOGIN_BAD_CREDENTIALS") {
-              errorMsg = "Invalid email or password";
+              errorMsg = S.auth.invalidCredentials;
             } else if (errorDetail === "NO_WEB_LOGIN_AND_HAS_NO_PASSWORD") {
-              errorMsg = "Create an account to set a password";
+              errorMsg = S.auth.createAccountToSetPassword;
             } else if (typeof errorDetail === "string") {
               errorMsg = errorDetail;
             }
             if (loginResponse.status === 429) {
-              errorMsg = "Too many requests. Please try again later.";
+              errorMsg = S.auth.tooManyRequests;
             }
             setErrorMessage(errorMsg);
             setApiStatus("error");
-            toast.error(`Failed to login - ${errorMsg}`);
+            toast.error(`${S.auth.loginFailedPrefix} — ${errorMsg}`);
           }
         }}
       >
@@ -176,7 +182,7 @@ export default function EmailPasswordForm({
                 name="email"
                 render={(field, helper, meta, state) => (
                   <FormField name="email" state={state} className="w-full">
-                    <FormField.Label>Email Address</FormField.Label>
+                    <FormField.Label>{S.auth.emailAddressLabel}</FormField.Label>
                     <FormField.Control>
                       <InputTypeIn
                         {...field}
@@ -188,7 +194,7 @@ export default function EmailPasswordForm({
                           }
                           field.onChange(e);
                         }}
-                        placeholder="email@yourcompany.com"
+                        placeholder={S.auth.emailPlaceholder}
                         onClear={() => helper.setValue("")}
                         data-testid="email"
                         variant={apiStatus === "error" ? "error" : undefined}
@@ -203,7 +209,7 @@ export default function EmailPasswordForm({
                 name="password"
                 render={(field, helper, meta, state) => (
                   <FormField name="password" state={state} className="w-full">
-                    <FormField.Label>Password</FormField.Label>
+                    <FormField.Label>{S.auth.password}</FormField.Label>
                     <FormField.Control>
                       <PasswordInputTypeIn
                         {...field}
@@ -225,9 +231,9 @@ export default function EmailPasswordForm({
                     {isSignup && !showApiMessage && (
                       <FormField.Message
                         messages={{
-                          idle: `Password must be at least ${passwordMinLength} characters`,
+                          idle: passwordRuleText,
                           error: meta.error,
-                          success: `Password must be at least ${passwordMinLength} characters`,
+                          success: passwordRuleText,
                         }}
                       />
                     )}
@@ -248,7 +254,11 @@ export default function EmailPasswordForm({
                   width="full"
                   rightIcon={SvgArrowRightCircle}
                 >
-                  {isJoin ? "Join" : isSignup ? "Create Account" : "Sign In"}
+                  {isJoin
+                    ? S.auth.joinButton
+                    : isSignup
+                      ? S.auth.createAccount
+                      : S.auth.signIn}
                 </Button>
               </Disabled>
               {user?.is_anonymous_user && (
@@ -257,7 +267,7 @@ export default function EmailPasswordForm({
                   className="text-xs text-action-link-05 cursor-pointer text-center w-full font-medium mx-auto"
                 >
                   <span className="hover:border-b hover:border-dotted hover:border-action-link-05">
-                    or continue as guest
+                    {S.auth.continueAsGuest}
                   </span>
                 </Link>
               )}

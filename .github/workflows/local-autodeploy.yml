@@ -1,0 +1,95 @@
+name: Local Autodeploy (main)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: local-autodeploy-main
+  cancel-in-progress: true
+
+jobs:
+  autodeploy:
+    runs-on: [self-hosted, linux, onyx-local-deploy]
+    timeout-minutes: 90
+    env:
+      DEPLOY_DIR: ${{ vars.ONYX_DEPLOY_DIR || format('{0}/onyx-deploy', env.HOME) }}
+      ENV_FILE: ${{ vars.ONYX_ENV_FILE || format('{0}/onyx.env', env.HOME) }}
+      COMPOSE_DIR: ${{ vars.ONYX_COMPOSE_DIR || format('{0}/onyx-deploy/deployment/docker_compose', env.HOME) }}
+      UI_URL: ${{ vars.ONYX_UI_URL || 'http://localhost:3000' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # ratchet:actions/checkout@v6
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Save previous deployed revision
+        id: previous-revision
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -d "$DEPLOY_DIR/.git" ]]; then
+            PREV_SHA="$(git -C "$DEPLOY_DIR" rev-parse HEAD)"
+            echo "sha=$PREV_SHA" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Sync deployment checkout to commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          AUTHED_URL="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          if [[ ! -d "$DEPLOY_DIR/.git" ]]; then
+            git clone "$AUTHED_URL" "$DEPLOY_DIR"
+          fi
+
+          git -C "$DEPLOY_DIR" remote set-url origin "$AUTHED_URL"
+          git -C "$DEPLOY_DIR" fetch origin main --prune
+          git -C "$DEPLOY_DIR" checkout -B main origin/main
+          git -C "$DEPLOY_DIR" reset --hard "${{ github.sha }}"
+
+      - name: Validate deployment prerequisites
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -f "$ENV_FILE" ]] || { echo "Missing ENV file: $ENV_FILE" >&2; exit 1; }
+          [[ -d "$COMPOSE_DIR" ]] || { echo "Missing compose dir: $COMPOSE_DIR" >&2; exit 1; }
+          chmod +x "$DEPLOY_DIR/deployment/docker_compose/scripts/autodeploy_main.sh"
+          chmod +x "$DEPLOY_DIR/deployment/docker_compose/scripts/collect_compose_logs.sh"
+
+      - name: Deploy and health check
+        id: deploy
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$DEPLOY_DIR/deployment/docker_compose/scripts/autodeploy_main.sh"
+
+      - name: Roll back to previous deployed revision
+        if: failure() && steps.previous-revision.outputs.sha != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C "$DEPLOY_DIR" fetch origin main --prune
+          git -C "$DEPLOY_DIR" reset --hard "${{ steps.previous-revision.outputs.sha }}"
+          "$DEPLOY_DIR/deployment/docker_compose/scripts/autodeploy_main.sh" || true
+
+      - name: Collect compose logs on failure
+        if: failure()
+        shell: bash
+        run: |
+          set -euo pipefail
+          LOG_DIR="$GITHUB_WORKSPACE/autodeploy-logs"
+          LOG_DIR="$LOG_DIR" "$DEPLOY_DIR/deployment/docker_compose/scripts/collect_compose_logs.sh"
+
+      - name: Upload logs artifact on failure
+        if: failure()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # ratchet:actions/upload-artifact@v4
+        with:
+          name: local-autodeploy-logs
+          path: ${{ github.workspace }}/autodeploy-logs
+          if-no-files-found: warn

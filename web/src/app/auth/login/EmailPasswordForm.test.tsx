@@ -7,6 +7,12 @@
 import React from "react";
 import { render, screen, waitFor, setupUser } from "@tests/setup/test-utils";
 import EmailPasswordForm from "./EmailPasswordForm";
+import { S } from "@/lib/strings";
+
+const emailPlaceholderMatcher = new RegExp(
+  S.auth.emailPlaceholder.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+  "i"
+);
 
 // Mock next/navigation (not used by this component, but required by dependencies)
 jest.mock("next/navigation", () => ({
@@ -40,19 +46,23 @@ describe("Email/Password Login Workflow", () => {
     render(<EmailPasswordForm isSignup={false} />);
 
     // User fills out the form using placeholder text
-    const emailInput = screen.getByPlaceholderText(/email@yourcompany.com/i);
+    const emailInput = screen.getByPlaceholderText(emailPlaceholderMatcher);
     const passwordInput = screen.getByPlaceholderText(/∗/);
 
     await user.type(emailInput, "test@example.com");
     await user.type(passwordInput, "password123");
 
     // User submits the form
-    const loginButton = screen.getByRole("button", { name: /sign in/i });
+    const loginButton = screen.getByRole("button", {
+      name: new RegExp(`^${S.auth.signIn}$`, "i"),
+    });
     await user.click(loginButton);
 
     // Verify success message is shown after login
     await waitFor(() => {
-      expect(screen.getByText(/signed in successfully\./i)).toBeInTheDocument();
+      expect(
+        screen.getByText(new RegExp(`^${S.auth.signedInSuccessfully}$`, "i"))
+      ).toBeInTheDocument();
     });
 
     // Verify API was called with correct credentials
@@ -86,20 +96,22 @@ describe("Email/Password Login Workflow", () => {
     render(<EmailPasswordForm isSignup={false} />);
 
     // User fills out form with invalid credentials
-    const emailInput = screen.getByPlaceholderText(/email@yourcompany.com/i);
+    const emailInput = screen.getByPlaceholderText(emailPlaceholderMatcher);
     const passwordInput = screen.getByPlaceholderText(/∗/);
 
     await user.type(emailInput, "wrong@example.com");
     await user.type(passwordInput, "wrongpassword");
 
     // User submits
-    const loginButton = screen.getByRole("button", { name: /sign in/i });
+    const loginButton = screen.getByRole("button", {
+      name: new RegExp(`^${S.auth.signIn}$`, "i"),
+    });
     await user.click(loginButton);
 
     // Verify field-level error message is displayed (not the toast)
     await waitFor(() => {
       expect(
-        screen.getByText(/^Invalid email or password$/i)
+        screen.getByText(new RegExp(`^${S.auth.invalidCredentials}$`, "i"))
       ).toBeInTheDocument();
     });
   });
@@ -135,7 +147,7 @@ describe("Email/Password Signup Workflow", () => {
     render(<EmailPasswordForm isSignup={true} />);
 
     // User fills out the signup form
-    const emailInput = screen.getByPlaceholderText(/email@yourcompany.com/i);
+    const emailInput = screen.getByPlaceholderText(emailPlaceholderMatcher);
     const passwordInput = screen.getByPlaceholderText(/∗/);
 
     await user.type(emailInput, "newuser@example.com");
@@ -143,7 +155,7 @@ describe("Email/Password Signup Workflow", () => {
 
     // User submits the signup form
     const signupButton = screen.getByRole("button", {
-      name: /create account/i,
+      name: new RegExp(`^${S.auth.createAccount}$`, "i"),
     });
     await user.click(signupButton);
 
@@ -183,7 +195,9 @@ describe("Email/Password Signup Workflow", () => {
     // Verify success message is shown
     await waitFor(() => {
       expect(
-        screen.getByText(/account created\. signing in/i)
+        screen.getByText(
+          new RegExp(`^${S.auth.accountCreatedSigningIn}$`, "i")
+        )
       ).toBeInTheDocument();
     });
   });
@@ -201,7 +215,7 @@ describe("Email/Password Signup Workflow", () => {
     render(<EmailPasswordForm isSignup={true} />);
 
     // User fills out form with existing email
-    const emailInput = screen.getByPlaceholderText(/email@yourcompany.com/i);
+    const emailInput = screen.getByPlaceholderText(emailPlaceholderMatcher);
     const passwordInput = screen.getByPlaceholderText(/∗/);
 
     await user.type(emailInput, "existing@example.com");
@@ -209,16 +223,14 @@ describe("Email/Password Signup Workflow", () => {
 
     // User submits
     const signupButton = screen.getByRole("button", {
-      name: /create account/i,
+      name: new RegExp(`^${S.auth.createAccount}$`, "i"),
     });
     await user.click(signupButton);
 
     // Verify field-level error message is displayed (not the toast)
     await waitFor(() => {
       expect(
-        screen.getByText(
-          /^An account already exists with the specified email\.$/i
-        )
+        screen.getByText(new RegExp(`^${S.auth.accountAlreadyExists}$`, "i"))
       ).toBeInTheDocument();
     });
   });
@@ -236,7 +248,7 @@ describe("Email/Password Signup Workflow", () => {
     render(<EmailPasswordForm isSignup={true} />);
 
     // User fills out form
-    const emailInput = screen.getByPlaceholderText(/email@yourcompany.com/i);
+    const emailInput = screen.getByPlaceholderText(emailPlaceholderMatcher);
     const passwordInput = screen.getByPlaceholderText(/∗/);
 
     await user.type(emailInput, "user@example.com");
@@ -244,14 +256,14 @@ describe("Email/Password Signup Workflow", () => {
 
     // User submits
     const signupButton = screen.getByRole("button", {
-      name: /create account/i,
+      name: new RegExp(`^${S.auth.createAccount}$`, "i"),
     });
     await user.click(signupButton);
 
     // Verify field-level rate limit message is displayed (not the toast)
     await waitFor(() => {
       expect(
-        screen.getByText(/^Too many requests\. Please try again later\.$/i)
+        screen.getByText(new RegExp(`^${S.auth.tooManyRequests}$`, "i"))
       ).toBeInTheDocument();
     });
   });

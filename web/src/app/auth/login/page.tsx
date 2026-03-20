@@ -10,6 +10,7 @@ import type { Route } from "next";
 import AuthFlowContainer from "@/components/auth/AuthFlowContainer";
 import LoginPage from "./LoginPage";
 import { AuthType } from "@/lib/constants";
+import { S } from "@/lib/strings";
 
 export interface PageProps {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -87,7 +88,7 @@ export default async function Page(props: PageProps) {
     (authTypeMetadata.authType === AuthType.GOOGLE_OAUTH ||
       authTypeMetadata.authType === AuthType.OIDC ||
       authTypeMetadata.authType === AuthType.SAML) ? (
-      <>Need access? Reach out to your IT admin to get access.</>
+      <>{S.auth.needAccessItAdmin}</>
     ) : undefined;
 
   return (

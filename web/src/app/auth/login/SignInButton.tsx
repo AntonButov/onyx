@@ -21,6 +21,7 @@
 import { Button } from "@opal/components";
 import { AuthType } from "@/lib/constants";
 import { FcGoogle } from "react-icons/fc";
+import { S } from "@/lib/strings";
 import type { IconProps } from "@opal/types";
 
 interface SignInButtonProps {
@@ -36,12 +37,12 @@ export default function SignInButton({
   let icon: React.FunctionComponent<IconProps> | undefined;
 
   if (authType === AuthType.GOOGLE_OAUTH || authType === AuthType.CLOUD) {
-    button = "Continue with Google";
+    button = S.auth.continueWithGoogle;
     icon = FcGoogle;
   } else if (authType === AuthType.OIDC) {
-    button = "Continue with OIDC SSO";
+    button = S.auth.continueWithOidc;
   } else if (authType === AuthType.SAML) {
-    button = "Continue with SAML SSO";
+    button = S.auth.continueWithSaml;
   }
 
   if (!button) {
