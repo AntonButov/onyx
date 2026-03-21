@@ -14,7 +14,7 @@ export function resolveConfig(attributes: Partial<WidgetConfig>): WidgetConfig {
     backgroundColor: attributes.backgroundColor,
     textColor: attributes.textColor,
     agentName: attributes.agentName || "Assistant",
-    logo: attributes.logo,
+    logo: attributes.logo?.trim() || undefined,
     mode: attributes.mode || "launcher",
     includeCitations: attributes.includeCitations ?? false,
   };

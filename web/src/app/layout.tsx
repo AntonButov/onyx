@@ -45,23 +45,25 @@ const hankenGrotesk = Hanken_Grotesk({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  let logoLocation = "/onyx.ico";
   let enterpriseSettings: EnterpriseSettings | null = null;
   if (SERVER_SIDE_ONLY__PAID_ENTERPRISE_FEATURES_ENABLED) {
     enterpriseSettings = await (await fetchEnterpriseSettingsSS()).json();
-    logoLocation =
-      enterpriseSettings && enterpriseSettings.use_custom_logo
-        ? "/api/enterprise-settings/logo"
-        : "/onyx.ico";
   }
 
-  return {
+  const metadata: Metadata = {
     title: enterpriseSettings?.application_name || "Cleardocs",
     description: "Question answering for your documents",
-    icons: {
-      icon: logoLocation,
-    },
   };
+
+  // Default favicon: `src/app/icon.png` (ClearDocs emblem). Override only when EE
+  // serves a custom uploaded logo.
+  if (enterpriseSettings?.use_custom_logo) {
+    metadata.icons = {
+      icon: "/api/enterprise-settings/logo",
+    };
+  }
+
+  return metadata;
 }
 
 export const dynamic = "force-dynamic";

@@ -590,7 +590,7 @@ const MemoizedAppSidebarInner = memo(
           folded={folded}
           lowlight={!folded}
         >
-          New Project
+          {S.sidebar.newProject}
         </SidebarTab>
       ),
       [folded, createProjectModal.toggle, createProjectModal.isOpen]
@@ -614,7 +614,7 @@ const MemoizedAppSidebarInner = memo(
               icon={SvgSettings}
               folded={folded}
             >
-              {isAdmin ? "Admin Panel" : "Curator Panel"}
+              {isAdmin ? S.sidebar.adminPanel : S.sidebar.curatorPanel}
             </SidebarTab>
           )}
           <UserAvatarPopover
@@ -759,7 +759,7 @@ const MemoizedAppSidebarInner = memo(
                         icon={SvgFolderPlus}
                         prominence="tertiary"
                         size="sm"
-                        tooltip="New Project"
+                        tooltip={S.sidebar.newProject}
                         onClick={() => createProjectModal.toggle(true)}
                       />
                     }

@@ -11,7 +11,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { transformLinkUri } from "@/lib/utils";
 import { SvgAlertCircle } from "@opal/icons";
-import { IconProps, OnyxIcon } from "@/components/icons/icons";
+import { IconProps } from "@/components/icons/icons";
+import { ClearDocsBrandMark } from "@/components/brand/ClearDocsBrandMark";
 
 const ALL_USERS_INITIAL_POPUP_FLOW_COMPLETED =
   "allUsersInitialPopupFlowCompleted";
@@ -59,17 +60,24 @@ export function AppPopup() {
   const logoDisplayStyle = enterpriseSettings?.logo_display_style;
 
   // Header icon rules:
-  // - If neither app name nor custom logo exists -> show Onyx icon
+  // - If neither app name nor custom logo exists -> show ClearDocs emblem
   // - If logo display is "name_only" -> show alert icon
-  // - Otherwise -> show uploaded custom logo (fallback to Onyx icon)
+  // - Otherwise -> show uploaded custom logo (fallback to ClearDocs emblem)
   const headerIcon =
     !hasApplicationName && !hasCustomLogo
-      ? (props: IconProps) => <OnyxIcon size={24} {...props} />
+      ? (props: IconProps) => (
+          <ClearDocsBrandMark size={props.size ?? 24} className={props.className} />
+        )
       : logoDisplayStyle === "name_only"
         ? SvgAlertCircle
         : hasCustomLogo
           ? CustomLogoHeaderIcon
-          : (props: IconProps) => <OnyxIcon size={24} {...props} />;
+          : (props: IconProps) => (
+              <ClearDocsBrandMark
+                size={props.size ?? 24}
+                className={props.className}
+              />
+            );
 
   return (
     <Modal open onOpenChange={() => {}}>

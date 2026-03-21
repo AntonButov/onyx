@@ -15,7 +15,7 @@ import { widgetStyles } from "./styles/widget-styles";
 import { ApiService } from "./services/api-service";
 import { processPacket } from "./services/stream-parser";
 import { saveSession, loadSession, clearSession } from "./utils/storage";
-import { DEFAULT_LOGO } from "./assets/logo";
+import defaultLogo from "./assets/default-logo.png?inline";
 
 @customElement("onyx-chat-widget")
 export class OnyxChatWidget extends LitElement {
@@ -115,6 +115,49 @@ export class OnyxChatWidget extends LitElement {
     // Auto-open if inline mode
     if (this.config.mode === "inline") {
       this.isOpen = true;
+    }
+  }
+
+  willUpdate(changedProperties: Map<string, unknown>) {
+    super.willUpdate(changedProperties);
+    const configKeys = [
+      "backendUrl",
+      "apiKey",
+      "agentId",
+      "primaryColor",
+      "backgroundColor",
+      "textColor",
+      "agentName",
+      "logo",
+      "mode",
+      "includeCitations",
+    ] as const;
+    if (!configKeys.some((k) => changedProperties.has(k))) {
+      return;
+    }
+    try {
+      const next = resolveConfig({
+        backendUrl: this.backendUrl,
+        apiKey: this.apiKey,
+        agentId: this.agentId,
+        primaryColor: this.primaryColor,
+        backgroundColor: this.backgroundColor,
+        textColor: this.textColor,
+        agentName: this.agentName,
+        logo: this.logo,
+        mode: this.mode,
+        includeCitations: this.includeCitations,
+      });
+      this.config = next;
+      this.applyCustomColors();
+      if (
+        changedProperties.has("backendUrl") ||
+        changedProperties.has("apiKey")
+      ) {
+        this.apiService = new ApiService(next.backendUrl, next.apiKey);
+      }
+    } catch {
+      // Keep prior config if attributes are temporarily incomplete.
     }
   }
 
@@ -363,7 +406,7 @@ export class OnyxChatWidget extends LitElement {
               title="Open chat"
             >
               <img
-                src="${this.config.logo || DEFAULT_LOGO}"
+                src="${this.config.logo || defaultLogo}"
                 alt="Logo"
                 style="width: 32px; height: 32px; object-fit: contain;"
               />
@@ -395,7 +438,7 @@ export class OnyxChatWidget extends LitElement {
         <div class="header-left">
           <div class="avatar">
             <img
-              src="${this.config.logo || DEFAULT_LOGO}"
+              src="${this.config.logo || defaultLogo}"
               alt="Logo"
               style="width: 100%; height: 100%; object-fit: contain;"
             />
@@ -557,7 +600,7 @@ export class OnyxChatWidget extends LitElement {
       <div class="compact-input-container">
         <div class="compact-avatar">
           <img
-            src="${this.config.logo || DEFAULT_LOGO}"
+            src="${this.config.logo || defaultLogo}"
             alt="Logo"
             style="width: 100%; height: 100%; object-fit: contain;"
           />

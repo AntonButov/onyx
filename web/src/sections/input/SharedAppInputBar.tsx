@@ -11,6 +11,7 @@ import {
   SvgHourglass,
   SvgEditBig,
 } from "@opal/icons";
+import { S } from "@/lib/strings";
 
 export default function SharedAppInputBar() {
   return (
@@ -19,7 +20,7 @@ export default function SharedAppInputBar() {
         {/* Textarea area */}
         <div className="flex flex-row items-center w-full">
           <Text text03 className="w-full px-3 pt-3 pb-2 select-none">
-            How can Cleardocs help you today
+            {S.chat.placeholderClearDocsPrompt}
           </Text>
         </div>
 
@@ -56,7 +57,7 @@ export default function SharedAppInputBar() {
       {/* CTA button */}
       <div className="absolute inset-0 flex items-center justify-center">
         <Button prominence="secondary" icon={SvgEditBig} href="/app">
-          Start New Session
+          {S.sidebar.newSession}
         </Button>
       </div>
     </div>

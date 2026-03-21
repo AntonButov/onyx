@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { OnyxIcon } from "../icons/icons";
+import { ClearDocsBrandMark } from "@/components/brand/ClearDocsBrandMark";
 import { S } from "@/lib/strings";
 
 export default function AuthFlowContainer({
@@ -14,7 +14,7 @@ export default function AuthFlowContainer({
   return (
     <div className="p-4 flex flex-col items-center justify-center min-h-screen bg-background">
       <div className="w-full max-w-md flex items-start flex-col bg-background-tint-00 rounded-16 shadow-lg shadow-02 p-6">
-        <OnyxIcon size={44} className="text-theme-primary-05" />
+        <ClearDocsBrandMark size={44} priority />
         <div className="w-full mt-3">{children}</div>
       </div>
       {authState === "login" && (

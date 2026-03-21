@@ -251,7 +251,7 @@ widget/
 │   ├── utils/
 │   │   └── storage.ts           # Session persistence
 │   └── assets/
-│       └── logo.ts              # Default Onyx logo (base64)
+│       └── default-logo.png     # Copied from public/logo.png on each `npm run build` (prebuild)
 ├── dist/                        # Build output
 ├── index.html
 ├── package.json
@@ -342,6 +342,19 @@ Response: Server-Sent Events stream
    ```
 
 ## Customization
+
+### Default launcher logo
+
+1. Put your PNG at **`public/logo.png`** (this is the source of truth).
+2. Run **`npm run build`**. The `prebuild` step copies that file to `src/assets/default-logo.png`, and Vite inlines it into the bundle (`?inline`).
+
+You do **not** need to run `sync-logo` by hand before `npm run build` anymore.
+
+**If the icon still looks wrong:**
+
+- You are loading **`logo="https://..."`** on `<onyx-chat-widget>` — that URL overrides the default; remove the attribute or update the URL.
+- The page still loads an **old** script (CDN, browser cache, or nginx cache). Deploy the new `dist/onyx-widget.js` and add a cache-buster to the script tag, e.g. `onyx-widget.js?v=20250321`.
+- You are checking the **main Onyx web UI** (localhost:3000): it does **not** read `widget/public/logo.png`. It uses `web/public/cleardocs-emblem.png`, `web/src/app/icon.png`, and `web/src/app/apple-icon.png`. From repo root run: `node scripts/sync-web-brand-icons-from-widget.mjs` after updating `widget/public/logo.png`, then rebuild/restart the web server.
 
 ### Styling
 

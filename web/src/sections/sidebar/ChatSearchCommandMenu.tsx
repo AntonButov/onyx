@@ -37,14 +37,14 @@ import { S } from "@/lib/strings";
 function DynamicFooter() {
   const { highlightedItemType } = useCommandMenuContext();
 
-  // "Show all" for filters, "Open" for everything else (items, actions, or no highlight)
-  const actionLabel = highlightedItemType === "filter" ? "Show all" : "Open";
+  const actionLabel =
+    highlightedItemType === "filter" ? S.chat.showAll : S.chat.open;
 
   return (
     <CommandMenu.Footer
       leftActions={
         <>
-          <CommandMenu.FooterAction icon={SvgArrowUpDown} label="Select" />
+          <CommandMenu.FooterAction icon={SvgArrowUpDown} label={S.chat.select} />
           <CommandMenu.FooterAction icon={SvgKeystroke} label={actionLabel} />
         </>
       }
@@ -141,10 +141,10 @@ export default function ChatSearchCommandMenu({
   // Header filters for showing active filter as a chip
   const headerFilters = useMemo(() => {
     if (activeFilter === "chats") {
-      return [{ id: "chats", label: "Sessions" }];
+      return [{ id: "chats", label: S.sidebar.sessions }];
     }
     if (activeFilter === "projects") {
-      return [{ id: "projects", label: "Projects" }];
+      return [{ id: "projects", label: S.sidebar.projects }];
     }
     return [];
   }, [activeFilter]);
@@ -210,7 +210,7 @@ export default function ChatSearchCommandMenu({
 
   return (
     <>
-      <div aria-label="Open chat search" onClick={() => setOpen(true)}>
+      <div aria-label={S.misc.openChatSearchAria} onClick={() => setOpen(true)}>
         {trigger}
       </div>
 
@@ -228,7 +228,9 @@ export default function ChatSearchCommandMenu({
 
           <CommandMenu.List
             emptyMessage={
-              hasSearchValue ? "No results found" : "No chats or projects yet"
+              hasSearchValue
+                ? S.misc.noResultsFound
+                : S.misc.noChatsOrProjectsYet
             }
           >
             {/* New Session action - always visible in "all" filter, even during search */}
@@ -239,7 +241,7 @@ export default function ChatSearchCommandMenu({
                 onSelect={handleNewSession}
                 defaultHighlight={!hasSearchValue}
               >
-                New Session
+                {S.sidebar.newSession}
               </CommandMenu.Action>
             )}
 
@@ -256,7 +258,9 @@ export default function ChatSearchCommandMenu({
                         filteredChats.length <= PREVIEW_CHATS_LIMIT
                       }
                     >
-                      {activeFilter === "chats" ? "Recent" : "Recent Sessions"}
+                      {activeFilter === "chats"
+                        ? S.misc.recent
+                        : S.misc.recentSessions}
                     </CommandMenu.Filter>
                   )}
                   {displayedChats.map((chat) => (
@@ -304,7 +308,7 @@ export default function ChatSearchCommandMenu({
                     filteredProjects.length <= PREVIEW_PROJECTS_LIMIT
                   }
                 >
-                  Projects
+                  {S.sidebar.projects}
                 </CommandMenu.Filter>
                 {/* New Project action - shown after Projects filter when no search term */}
                 {!hasSearchValue && activeFilter === "all" && (
@@ -313,7 +317,7 @@ export default function ChatSearchCommandMenu({
                     icon={SvgFolderPlus}
                     onSelect={() => handleNewProject()}
                   >
-                    New Project
+                    {S.sidebar.newProject}
                   </CommandMenu.Action>
                 )}
                 {displayedProjects.map((project) => (
@@ -349,8 +353,9 @@ export default function ChatSearchCommandMenu({
                   onSelect={() => handleNewProject(searchValue.trim())}
                 >
                   <>
-                    Create New Project "
-                    <span className="text-text-05">{searchValue.trim()}</span>"
+                    Создать проект «
+                    <span className="text-text-05">{searchValue.trim()}</span>
+                    »
                   </>
                 </CommandMenu.Action>
               )}
@@ -361,7 +366,10 @@ export default function ChatSearchCommandMenu({
               (activeFilter === "all" &&
                 displayedChats.length === 0 &&
                 displayedProjects.length === 0)) && (
-              <TextSeparator text="No more results" className="mt-auto mb-2" />
+              <TextSeparator
+                text={S.misc.noMoreResults}
+                className="mt-auto mb-2"
+              />
             )}
           </CommandMenu.List>
 

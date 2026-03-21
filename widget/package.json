@@ -9,12 +9,17 @@
     "dist"
   ],
   "scripts": {
+    "sync-logo": "node scripts/sync-logo.mjs",
     "dev": "vite",
+    "prebuild": "npm run sync-logo",
     "build": "vite build",
+    "prebuild:cloud": "npm run sync-logo",
     "build:cloud": "vite build --mode production",
+    "prebuild:self-hosted": "npm run sync-logo",
     "build:self-hosted": "vite build --mode self-hosted",
     "preview": "vite preview",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "verify": "node scripts/verify-logo.mjs"
   },
   "dependencies": {
     "dompurify": "^3.3.2",
@@ -24,6 +29,7 @@
   "devDependencies": {
     "@types/dompurify": "^3.0.0",
     "@types/node": "^20.0.0",
+    "terser": "^5.46.1",
     "typescript": "^5.3.0",
     "vite": "^7.3.1"
   }
