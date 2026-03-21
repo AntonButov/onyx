@@ -720,7 +720,12 @@ class GoogleDriveConnector(
 
         if not all_drive_ids:
             logger.warning(
-                "No drives found even though indexing shared drives was requested."
+                "Google Drive: drives.list returned no shared drives (Team Drives) for user %s. "
+                "If you expected files from your personal space, enable "
+                "'Include My Drive' in the connector — My Drive is separate from shared drives. "
+                "If shared drives should appear, verify the account is a member and OAuth includes "
+                "Drive access; service accounts need domain-wide delegation for organization drives.",
+                user_email,
             )
 
         return all_drive_ids

@@ -36,6 +36,7 @@ import {
 import FilePickerPopover from "@/refresh-components/popovers/FilePickerPopover";
 import ActionsPopover from "@/refresh-components/popovers/ActionsPopover";
 import { SHOW_INPUT_BAR_TOOLBAR } from "@/lib/constants";
+import { S } from "@/lib/strings";
 import {
   getIconForAction,
   hasSearchToolsAvailable,
@@ -791,12 +792,12 @@ const AppInputBar = React.memo(
                     aria-multiline={true}
                     placeholder={
                       isRecording
-                        ? "Listening..."
+                        ? S.chat.listening
                         : isVoicePlaybackActive
-                          ? "Cleardocs is speaking..."
+                          ? S.chat.speakingClearDocs
                           : isSearchMode
-                            ? "Search connected sources"
-                            : "How can I help you today?"
+                            ? S.chat.placeholderSearch
+                            : S.chat.placeholderToday
                     }
                     value={message}
                     onKeyDown={(event) => {

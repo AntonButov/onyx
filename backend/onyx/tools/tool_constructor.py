@@ -117,6 +117,7 @@ def construct_tools(
     file_reader_tool_config: FileReaderToolConfig | None = None,
     allowed_tool_ids: list[int] | None = None,
     search_usage_forcing_setting: SearchToolUsage = SearchToolUsage.AUTO,
+    force_include_tool_id: int | None = None,
 ) -> dict[int, list[Tool]]:
     """Constructs tools based on persona configuration and available APIs.
 
@@ -167,7 +168,12 @@ def construct_tools(
             if tool_cls.__name__ == SearchTool.__name__:
                 added_search_tool = True
                 if search_usage_forcing_setting == SearchToolUsage.DISABLED:
-                    continue
+                    # Client may force Internal Search for this turn; still include that tool id.
+                    if (
+                        force_include_tool_id is None
+                        or force_include_tool_id != db_tool_model.id
+                    ):
+                        continue
 
                 if not search_tool_config:
                     search_tool_config = SearchToolConfig()

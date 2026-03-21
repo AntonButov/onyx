@@ -1,13 +1,16 @@
 "use client";
 
-import { OnyxIcon, OnyxLogoTypeIcon } from "@/components/icons/icons";
+import { OnyxIcon } from "@/components/icons/icons";
 import { useSettingsContext } from "@/providers/SettingsProvider";
 import Image from "next/image";
 import {
   LOGO_FOLDED_SIZE_PX,
-  LOGO_UNFOLDED_SIZE_PX,
   NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_DANSWER_POWERED,
 } from "@/lib/constants";
+import {
+  PRODUCT_DISPLAY_NAME,
+  resolveProductDisplayName,
+} from "@/lib/branding";
 import { cn } from "@/lib/utils";
 import Text from "@/refresh-components/texts/Text";
 import Truncated from "@/refresh-components/texts/Truncated";
@@ -21,10 +24,10 @@ export interface LogoProps {
 
 export default function Logo({ folded, size, className }: LogoProps) {
   const foldedSize = size ?? LOGO_FOLDED_SIZE_PX;
-  const unfoldedSize = size ?? LOGO_UNFOLDED_SIZE_PX;
   const settings = useSettingsContext();
   const logoDisplayStyle = settings.enterpriseSettings?.logo_display_style;
   const applicationName = settings.enterpriseSettings?.application_name;
+  const displayName = resolveProductDisplayName(applicationName);
 
   const logo = useMemo(
     () =>
@@ -64,7 +67,7 @@ export default function Logo({ folded, size, className }: LogoProps) {
           /* H3 text is 4px larger (28px) than the Logo icon (24px), so negative margin hack. */
           <div className="flex flex-1 flex-col -mt-0.5">
             {opts.includeName && (
-              <Truncated headingH3>{applicationName}</Truncated>
+              <Truncated headingH3>{displayName}</Truncated>
             )}
             {!NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_DANSWER_POWERED && (
               <Text
@@ -73,7 +76,7 @@ export default function Logo({ folded, size, className }: LogoProps) {
                 className={"line-clamp-1 truncate"}
                 nowrap
               >
-                Powered by Cleardocs
+                Powered by {PRODUCT_DISPLAY_NAME}
               </Text>
             )}
           </div>
@@ -92,12 +95,15 @@ export default function Logo({ folded, size, className }: LogoProps) {
     return renderNameAndPoweredBy({ includeLogo: false, includeName: true });
   }
 
-  // Handle "logo_and_name" or default behavior
-  return applicationName ? (
+  // Handle "logo_and_name" or default behavior (treat whitespace-only as unset)
+  return applicationName?.trim() ? (
     renderNameAndPoweredBy({ includeLogo: true, includeName: true })
   ) : folded ? (
     <OnyxIcon size={foldedSize} className={cn("flex-shrink-0", className)} />
   ) : (
-    <OnyxLogoTypeIcon size={unfoldedSize} className={className} />
+    <div className="flex min-w-0 items-center gap-2">
+      <OnyxIcon size={foldedSize} className={cn("flex-shrink-0", className)} />
+      <Truncated headingH3>{displayName}</Truncated>
+    </div>
   );
 }

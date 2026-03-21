@@ -15,6 +15,22 @@ This file provides guidance to AI agents when working with code in this reposito
 - When making calls to the backend, always go through the frontend. E.g. make a call to `http://localhost:3000/api/persona` not `http://localhost:8080/api/persona`
 - Put ALL db operations under the `backend/onyx/db` / `backend/ee/onyx/db` directories. Don't run queries
   outside of those directories.
+- **Docker Compose (local stack):** Containers do **not** hot-reload when you edit the repo. After changes to
+  **`backend/`** (FastAPI, chat, tools, Celery tasks), rebuild and restart the affected services — at minimum
+  **`api_server`** and often **`background`** (Celery): from the directory with `docker-compose.yml` (e.g.
+  `deployment/docker_compose`), run  
+  `docker-compose --env-file <your.env> up -d --build api_server background`.  
+  After changes to **`web/`**, rebuild **`web_server`** the same way. Until you rebuild, running containers
+  still serve the **old image** and bugs can look like “mystery” API errors.
+  **After rebuilding `api_server` or `web_server`, restart `nginx` too** (e.g.
+  `docker restart onyx-nginx-1`) — otherwise nginx may keep stale upstream IPs and return **502** / “backend
+  unavailable” on `http://localhost:3000` even when the API is healthy.
+- **Snap Docker / `docker-compose`:** If Compose is the snap binary (`/snap/bin/docker-compose`, package
+  `docker`), the CLI is confined. Checkouts **outside `$HOME`** (e.g. under **`/mnt/...`**) often return
+  `open .../.env: permission denied` even when normal tools can read the file. Mitigations: (1) run
+  `sudo snap connect docker:removable-media` if the tree is on a mount snap can expose; (2) move or
+  clone the repo under **`$HOME`**; (3) use **`docker compose`** from Docker Engine installed via apt
+  / Docker’s repo with the **`docker-compose-plugin`** package (not the snap-only CLI).
 
 ## Project Overview
 

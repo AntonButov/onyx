@@ -288,9 +288,15 @@ export const S = {
   chat: {
     placeholder: "Задайте вопрос...",
     placeholderSearch: "Поиск по подключённым источникам",
+    /** Плейсхолдер основного поля ввода на главном экране чата */
+    placeholderToday: "Чем могу помочь сегодня?",
     placeholderHelp: "Чем могу помочь?",
-    listening: "Слушаю...",
+    listening: "Слушаю…",
     speaking: "Говорит",
+    /** Озвучка / голосовой режим */
+    speakingClearDocs: "ClearDocs говорит…",
+    /** Демо-заглушка в SharedAppInputBar */
+    placeholderClearDocsPrompt: "Чем ClearDocs может помочь сегодня?",
     send: "Отправить",
     newChat: "Новый чат",
     shareChat: "Поделиться чатом",
@@ -408,5 +414,7 @@ export const S = {
     recent: "Недавние",
     recentSessions: "Недавние сеансы",
     addFilter: "Добавить фильтр",
+    /** aria-label для кнопки открытия палитры поиска по чатам */
+    openChatSearchAria: "Открыть поиск по чатам",
   },
 } as const;

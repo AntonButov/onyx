@@ -1012,16 +1012,22 @@ def monitor_process_memory(self: Task, *, tenant_id: str) -> None:  # noqa: ARG0
         # Get all supervisor-managed processes
         supervisor_processes: dict[int, str] = {}
 
-        # Map cmd line elements to more readable process names
+        # Map cmd line snippets to worker roles (must match supervisord.conf hostnames).
+        # Do not use bare "beat" — it matches `celery_beat.log` in the log-redirect tail process.
         process_type_mapping = {
-            "--hostname=primary": "primary",
-            "--hostname=light": "light",
-            "--hostname=heavy": "heavy",
-            "--hostname=indexing": "indexing",
-            "--hostname=monitoring": "monitoring",
-            "beat": "beat",
-            "slack/listener.py": "slack",
+            "--hostname=primary@": "primary",
+            "--hostname=light@": "light",
+            "--hostname=heavy@": "heavy",
+            "--hostname=docprocessing@": "docprocessing",
+            "--hostname=docfetching@": "docfetching",
+            "--hostname=monitoring@": "monitoring",
+            "--hostname=user_file_processing@": "user_file_processing",
+            "versioned_apps.beat beat": "beat",
+            "onyxbot/slack/listener.py": "slack",
         }
+
+        # Slack bot may exit after max retries when unconfigured; do not alarm on that alone.
+        optional_process_types = frozenset({"slack"})
 
         # Find all python processes that are likely celery workers
         for proc in psutil.process_iter():
@@ -1033,17 +1039,25 @@ def monitor_process_memory(self: Task, *, tenant_id: str) -> None:  # noqa: ARG0
             for process_name, process_type in process_type_mapping.items():
                 if process_name in cmdline:
                     if process_type in supervisor_processes.values():
-                        task_logger.error(
-                            f"Duplicate process type for type {process_type} with cmd {cmdline} with pid={proc.pid}."
+                        task_logger.warning(
+                            "Duplicate process type for type %s with cmd %s with pid=%s.",
+                            process_type,
+                            cmdline,
+                            proc.pid,
                         )
                         continue
 
                     supervisor_processes[proc.pid] = process_type
                     break
 
-        if len(supervisor_processes) != len(process_type_mapping):
-            task_logger.error(
-                f"Missing processes: {set(process_type_mapping.keys()).symmetric_difference(supervisor_processes.values())}"
+        expected_types = set(process_type_mapping.values())
+        found_types = set(supervisor_processes.values())
+        missing_required = expected_types - found_types - optional_process_types
+        if missing_required:
+            task_logger.warning(
+                "monitor_process_memory: expected Celery worker role(s) not seen in process list "
+                "(roles may still be starting, or this image uses a different supervisor layout): %s",
+                sorted(missing_required),
             )
 
         # Log memory usage for each process
